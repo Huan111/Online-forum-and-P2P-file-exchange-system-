@@ -70,47 +70,47 @@ def login(connectionSocket,address):
             connectionSocket.send('Please enter your username:'.encode())
             user = connectionSocket.recv(1024).decode()
             idx = user_list.index(user)
-            print(f'user is {user}')
+            #print(f'user is {user}')
             connectionSocket.send('Please enter your password:'.encode())
             passwd = connectionSocket.recv(1024).decode()
-            print(f'passwd is {passwd}')
+            #print(f'passwd is {passwd}')
         
         # only input passwd
         else:
             connectionSocket.send('Please enter your password:'.encode())
             passwd = connectionSocket.recv(1024).decode()
-            print(f'passwd is {passwd}')
+            #print(f'passwd is {passwd}')
+        
+        #block the user if is in block list
+        if user in block_list:
+                connectionSocket.send('Failed.Your account is still in blocked, please try later.'.encode())
+                break
         
         #check passwd
         if passwd == passwd_list[idx]:
-            #check if the user is in blocked
-            if user in block_list:
-                connectionSocket.send('Failed.Your account is still in blocked, please try later.'.encode())
-                break
-
-            else:
-                #successfully login in. added to active user log
-                connectionSocket.send(f'Welcome {user}!\nEnter one of the following commands (MSG, DLT, EDT, RDM, ATU, OUT, UDP):'.encode())
-                UDP_port = connectionSocket.recv(1024).decode()
-                t = time.ctime().split()
-                temp_t = t[2] + ' ' + t[1] + ' ' + t[-1] + ' ' + t[-2]
-                try:
-                    with open('userlog.txt') as f:
-                        d = f.readlines()
-                    idx = len(d) + 1
-                    with open('userlog.txt','a') as f:
-                        temp = str(idx) + '; ' + temp_t + '; ' + user + '; ' + address + '; ' + UDP_port + '\n'
-                        f.write(temp)
-                except:
-                    idx = 1
-                    with open("userlog.txt", "a") as f:
-                        temp = '1' + '; ' + temp_t + '; ' + user + '; ' + address + '; ' + UDP_port + '\n'
-                        f.write(temp)
-                return user,idx
+            #successfully login in. added to active user log
+            print(f'{user} logged in.')
+            connectionSocket.send(f'Welcome {user}!\nEnter one of the following commands (MSG, DLT, EDT, RDM, ATU, OUT, UDP):'.encode())
+            UDP_port = connectionSocket.recv(1024).decode()
+            t = time.ctime().split()
+            temp_t = t[2] + ' ' + t[1] + ' ' + t[-1] + ' ' + t[-2]
+            try:
+                with open('userlog.txt') as f:
+                    d = f.readlines()
+                idx = len(d) + 1
+                with open('userlog.txt','a') as f:
+                    temp = str(idx) + '; ' + temp_t + '; ' + user + '; ' + address + '; ' + UDP_port + '\n'
+                    f.write(temp)
+            except:
+                idx = 1
+                with open("userlog.txt", "a") as f:
+                    temp = '1' + '; ' + temp_t + '; ' + user + '; ' + address + '; ' + UDP_port + '\n'
+                    f.write(temp)
+            return user,idx
         else:
             #passwd is not correct
             if try_count < TRY_count:
-                connectionSocket.send(f'password is not correct. Please try again. Left trying time: {TRY_count - try_count}\n'.encode())
+                connectionSocket.send(f'password is not correct. Please try again. Left trying time: {TRY_count - try_count}.\n'.encode())
                 try_count += 1
                 continue
             #try times execeeded. add to block list
@@ -140,15 +140,80 @@ def logout(conn,user,idx):
                     pass
                 f.write(i)
         f.truncate()
-    print(f'{user} log out.')
+    print(f'{user} logged out.')
     conn.send(f'Successfully disconnted with the server. See ya {user}!'.encode())
 
-#user send the message
-def post_message(conn,user):
-    pass
 
-def delete_message(conn,user):
-    pass
+#user send the message
+def post_message(conn,user,message):
+    t = time.ctime().split()
+    temp_t = t[2] + ' ' + t[1] + ' ' + t[-1] + ' ' + t[-2]
+    try:
+        with open('messagelog.txt') as f:
+            d = f.readlines()
+        idx = len(d) + 1
+        with open('messagelog.txt','a') as f:
+            temp = str(idx) + '; ' + temp_t + '; ' + user + '; ' + message + '; no'+ '\n'
+            f.write(temp)
+    except:
+        idx = 1
+        with open("messagelog.txt", "a") as f:
+            temp = '1' + '; ' + temp_t + '; ' + user + '; ' + message + '; no'+ '\n'
+            f.write(temp)
+    conn.send(f'Message #{idx} posted at {temp_t}'.encode())
+    print(f'{user} posted MSG # {idx} "{message}" at {temp_t}')
+
+#user delete the message
+def delete_message(conn,user,check_list):
+    user_msg_list = []
+    check = ' '.join(check_list) + ' ' + user
+
+    try:
+        #extract the message file
+        with open("messagelog.txt", "r") as f:
+            d = f.readlines()
+            for i in d:
+                lst = i.strip().split('; ')
+                temp_user = lst[2]
+                temp_mg = lst[1]
+                temp_num = lst[0]
+                user_msg_list.append( '#' + temp_num + ' ' + temp_mg + ' ' + temp_user)
+
+        #if the 3 condctions are not matched, send back error message 
+        if check not in user_msg_list:
+            cur_t = time.ctime()
+            conn.send('Delete the message failed. Please check the input.'.encode())
+            print(f'{user} failed to delete MSG at {cur_t}')
+        
+        #if match, find the corresponding seq number then delete, and move up
+        else:
+            idx = user_msg_list.index(check) + 1
+            with open('messagelog.txt','r+') as f:
+                d = f.readlines()
+                f.seek(0)
+                for i in d:
+                    temp_lst = i.strip().split('; ')
+                    if int(temp_lst[0]) != idx:
+                        if int(temp_lst[0]) > idx:
+                            new_idx = str(int(temp_lst[0]) - 1)
+                            temp_lst[0] = new_idx
+                            i = '; '.join(temp_lst) + '\n'
+                        else:
+                            pass
+                        f.write(i)
+                    else:
+                        msg = temp_lst[-2]
+                        continue
+                f.truncate()
+            cur_t = time.ctime()
+            conn.send(f'Delete the message successfully. Message #{idx} deleted at {cur_t}.'.encode())
+            print(f'{user} deleted MSG # {idx} "{msg}" at {cur_t}')
+    
+    #if the messages file is not created.
+    except:
+        cur_t = time.ctime()
+        conn.send('Delete the message failed. There is no messages'.encode())
+        print(f'{user} failed to delete MSG at {cur_t}')
 
 def edit_message(conn,user):
     pass
@@ -157,7 +222,27 @@ def read_message(conn,user):
     pass
 
 def download_active_users(conn,user):
-    pass
+    active_count = 0
+    with open('userlog.txt') as f:
+        d = f.readlines()
+        temp_str = 'Current active users is:\n'
+        for i in d:
+            temp_list = i.strip().split('; ')
+            name = temp_list[2]
+            if user == name:
+                continue
+            t = temp_list[1]
+            ip = temp_list[-2]
+            port = temp_list[-1]
+            temp_str += name + ', '+ ip + ', ' + port + ', active since ' + t +'\n'
+            active_count += 1
+    if active_count == 0:
+        conn.send('Currently no other user is in active.'.encode())
+        print(f'{user} issued ATU command ATU.')
+    else:
+        conn.send(temp_str.encode())
+        print(f'{user} issued ATU command ATU.')
+        print(f'Return active user list: \n{temp_str}')
 
 def upload_file(conn,user):
     pass
@@ -188,9 +273,11 @@ def handle_client(conn, addr):
                 else:
                     download_active_users(conn,user)
         elif command == POST_MESSAGE:
-            pass
+            temp_meg = ' '.join(temp_str[1:])
+            post_message(conn,user,temp_meg)
         elif command == DELETE_MESSAGE:
-            pass
+            temp_check = temp_str[1:]
+            delete_message(conn,user,temp_check)
         elif command == EDIT_MESSAGE:
             pass
         elif command == UPLOAD_FILE:
@@ -198,7 +285,7 @@ def handle_client(conn, addr):
         elif command == READ_MESSAGE:
             pass
         elif command == ACTIVATE_USERS:
-            pass
+            download_active_users(conn,user)
         else:
             conn.send('Invalid command. Please use available command (MSG, DLT, EDT, RDM, ATU, OUT, UDP):'.encode())
             continue
