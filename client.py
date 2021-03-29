@@ -18,7 +18,7 @@ message = ''
 connected = True
 while connected:
     data = clientSocket.recv(1024).decode()
-    if data[0] != 'F' and data[0] != 'D' and data[0] != 'W':
+    if data[0] != 'F' and data[0] != 'S' and data[0] != 'W':
         message = input(data)
         while message.strip() == '':
             print('Input should not be empty. Please enter again.')
