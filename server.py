@@ -4,6 +4,7 @@
 from socket import *
 import sys
 import time
+import datetime
 import threading
 
 #check the input arguments
@@ -268,8 +269,44 @@ def edit_message(conn,user,check_list):
         conn.send('Edit the message failed. There is no messages'.encode())
         print(f'{user} failed to Edit MSG at {cur_t}')
 
-def read_message(conn,user):
-    pass
+#user read new message
+def read_message(conn,user,check_list):
+    date_time_str = ' '.join(check_list)
+
+    #check if input datetime format correct,conver to datetime object
+    try:
+        comp_date = datetime.datetime.strptime(date_time_str, '%d %b %Y %H:%M:%S')
+    except:
+        conn.send('Read message fail. Invalid datetime format.Please follow(dd mm yyyy hh:mm:s).'.encode())
+        print(f'{user} issued RDM command failed.')
+        return
+    
+    #Reading message, compare to the request time, if bigger, add to the msg
+    try:
+        msg = ''
+        with open("messagelog.txt", "r") as f:
+            d = f.readlines()
+            for i in d:
+                temp = i.strip().split('; ')
+                temp_date = temp[1]
+                date_time_obj = datetime.datetime.strptime(temp_date, '%d %b %Y %H:%M:%S')
+                if date_time_obj >= comp_date:
+                    msg += '#' + temp[0] + '; ' + temp[-3] + ': ' + f'"{temp[-2]}" ' + 'posted at ' + temp[1] + '.\n'
+        
+        #if no new message
+        if msg == '':
+            conn.send('Read message failed. There is no new message'.encode())
+            print(f'{user} issued RDM command failed.')
+        
+        #send required messages
+        else:
+            conn.send(f'Read message successfully. The new message is:\n{msg}'.encode())
+            print(f'{user} issued RDM command.\nReturn message:\n{msg}')
+    
+    #if message file not created
+    except:
+        conn.send('Read the message failed. There is no messages'.encode())
+        print(f'{user} issued RDM command failed.')
 
 #user apply for current active users
 def download_active_users(conn,user):
@@ -317,7 +354,8 @@ def handle_client(conn, addr):
         temp_str = msg.strip().split()
         print(temp_str)
         command = temp_str[0]
-        print(command)
+        check_str = temp_str[1:]
+        print(check_str)
         if command == ACTIVATE_USERS or command == DISCONNECT_MESSAGE:
             if len(temp_str) != 1:
                 conn.send(f'Invalid format of {command}. There should be no arguments for this command. Please retry:'.encode())
@@ -330,18 +368,16 @@ def handle_client(conn, addr):
                 else:
                     download_active_users(conn,user)
         elif command == POST_MESSAGE:
-            temp_meg = ' '.join(temp_str[1:])
+            temp_meg = ' '.join(check_str)
             post_message(conn,user,temp_meg)
         elif command == DELETE_MESSAGE:
-            temp_check = temp_str[1:]
-            delete_message(conn,user,temp_check)
+            delete_message(conn,user,check_str)
         elif command == EDIT_MESSAGE:
-            temp_check = temp_str[1:]
-            edit_message(conn,user,temp_check)
+            edit_message(conn,user,check_str)
         elif command == UPLOAD_FILE:
             pass
         elif command == READ_MESSAGE:
-            pass
+            read_message(conn,user,check_str)
         elif command == ACTIVATE_USERS:
             download_active_users(conn,user)
         else:
