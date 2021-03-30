@@ -105,7 +105,7 @@ def login(connectionSocket,address):
                 with open("userlog.txt", "a") as f:
                     temp = '1' + '; ' + temp_t + '; ' + user + '; ' + address + '; ' + UDP_port + '\n'
                     f.write(temp)
-            return user,idx
+            return user
         else:
             #passwd is not correct
             if try_count < TRY_count:
@@ -123,7 +123,20 @@ def login(connectionSocket,address):
     return False
 
 #user log out
-def logout(conn,user,idx):
+def logout(conn,user):
+
+    #find the log out user seq number
+    with open('userlog.txt','r') as f:
+        d = f.readlines()
+        for i in d:
+            name = i.strip().split('; ')[2]
+            if user == name:
+                idx = int(i.strip().split('; ')[0])
+                break
+            else:
+                continue
+    
+    #delete the user from the active table
     with open('userlog.txt','r+') as f:
         d = f.readlines()
         f.seek(0)
@@ -339,7 +352,7 @@ def upload_file(conn,user):
 
 #main function to handle user message
 def handle_client(conn, addr):
-    user,idx = login(conn,addr[0])
+    user = login(conn,addr[0])
     if user:
         print(f'[NEW CONNECTION] {addr} connected.')
         connected = True
@@ -359,7 +372,7 @@ def handle_client(conn, addr):
             else:  
                 if command == DISCONNECT_MESSAGE:
                     connected = False
-                    logout(conn,user,idx)
+                    logout(conn,user)
                     break
                 else:
                     res = download_active_users(user)
