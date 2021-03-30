@@ -78,9 +78,7 @@ def login(connectionSocket,address):
         
         # only input passwd
         else:
-            connectionSocket.send('Please enter your password:'.encode())
             passwd = connectionSocket.recv(1024).decode()
-            #print(f'passwd is {passwd}')
         
         #block the user if is in block list
         if user in block_list:
@@ -111,7 +109,7 @@ def login(connectionSocket,address):
         else:
             #passwd is not correct
             if try_count < TRY_count:
-                connectionSocket.send(f'password is not correct. Please try again. Left trying time: {TRY_count - try_count}.\n'.encode())
+                connectionSocket.send(f'password is not correct. Left trying time: {TRY_count - try_count}. Please reenter your password:'.encode())
                 try_count += 1
                 continue
             #try times execeeded. add to block list
@@ -146,7 +144,7 @@ def logout(conn,user,idx):
 
 
 #user send the message
-def post_message(conn,user,message):
+def post_message(user,message):
     t = time.ctime().split()
     temp_t = t[2] + ' ' + t[1] + ' ' + t[-1] + ' ' + t[-2]
     try:
@@ -161,11 +159,11 @@ def post_message(conn,user,message):
         with open("messagelog.txt", "a") as f:
             temp = '1' + '; ' + temp_t + '; ' + user + '; ' + message + '; no'+ '\n'
             f.write(temp)
-    conn.send(f'Message #{idx} posted at {temp_t}'.encode())
     print(f'{user} posted MSG # {idx} "{message}" at {temp_t}')
+    return f'Message #{idx} posted at {temp_t}'
 
 #user delete the message
-def delete_message(conn,user,check_list):
+def delete_message(user,check_list):
     user_msg_list = []
     check = ' '.join(check_list) + ' ' + user
 
@@ -183,8 +181,8 @@ def delete_message(conn,user,check_list):
         #if the 3 condctions are not matched, send back error message 
         if check not in user_msg_list:
             cur_t = time.ctime()
-            conn.send('Delete the message failed. Please check the input.'.encode())
             print(f'{user} failed to delete MSG at {cur_t}')
+            return 'Delete the message failed. Please check the input.'
         
         #if match, find the corresponding seq number then delete, and move up
         else:
@@ -207,17 +205,16 @@ def delete_message(conn,user,check_list):
                         continue
                 f.truncate()
             cur_t = time.ctime()
-            conn.send(f'Delete the message successfully. Message #{idx} deleted at {cur_t}.'.encode())
             print(f'{user} deleted MSG # {idx} "{msg}" at {cur_t}')
-    
+            return f'Delete the message successfully. Message #{idx} deleted at {cur_t}.'
     #if the messages file is not created.
     except:
         cur_t = time.ctime()
-        conn.send('Delete the message failed. There is no messages'.encode())
         print(f'{user} failed to delete MSG at {cur_t}')
+        return 'Delete the message failed. There is no messages'
 
 #user edit the message
-def edit_message(conn,user,check_list):
+def edit_message(user,check_list):
     user_msg_list = []
     check = ' '.join(check_list[:5]) + ' ' + user
     new_msg = ' '.join(check_list[5:])
@@ -236,8 +233,8 @@ def edit_message(conn,user,check_list):
         #if the 3 condctions are not matched, send back error message 
         if check not in user_msg_list:
             cur_t = time.ctime()
-            conn.send('Edited the message failed. Please check the input.'.encode())
             print(f'{user} failed to edit MSG at {cur_t}')
+            return 'Edited the message failed. Please check the input.'
         
         #start to edit message
         else:
@@ -260,26 +257,25 @@ def edit_message(conn,user,check_list):
                     f.write(i)
                 f.truncate()
             cur_t = time.ctime()
-            conn.send(f'Edit the message successfully. Message #{idx} edited at {cur_t}.'.encode())
             print(f'{user} edited MSG # {idx} "{new_msg}" at {cur_t}')
+            return f'Edit the message successfully. Message #{idx} edited at {cur_t}.'
     
     #if no message file created
     except:
         cur_t = time.ctime()
-        conn.send('Edit the message failed. There is no messages'.encode())
         print(f'{user} failed to Edit MSG at {cur_t}')
+        return 'Edit the message failed. There is no messages'
 
 #user read new message
-def read_message(conn,user,check_list):
+def read_message(user,check_list):
     date_time_str = ' '.join(check_list)
 
     #check if input datetime format correct,conver to datetime object
     try:
         comp_date = datetime.datetime.strptime(date_time_str, '%d %b %Y %H:%M:%S')
     except:
-        conn.send('Read message fail. Invalid datetime format.Please follow(dd mm yyyy hh:mm:s).'.encode())
         print(f'{user} issued RDM command failed.')
-        return
+        return 'Read message fail. Invalid datetime format.Please follow(dd mm yyyy hh:mm:s).'
     
     #Reading message, compare to the request time, if bigger, add to the msg
     try:
@@ -295,21 +291,21 @@ def read_message(conn,user,check_list):
         
         #if no new message
         if msg == '':
-            conn.send('Read message failed. There is no new message'.encode())
             print(f'{user} issued RDM command failed.')
+            return 'Read message failed. There is no new message'
         
         #send required messages
         else:
-            conn.send(f'Read message successfully. The new message is:\n{msg}'.encode())
             print(f'{user} issued RDM command.\nReturn message:\n{msg}')
+            return f'Read message successfully. The new message is:\n{msg}'
     
     #if message file not created
     except:
-        conn.send('Read the message failed. There is no messages'.encode())
         print(f'{user} issued RDM command failed.')
+        return 'Read the message failed. There is no messages'
 
 #user apply for current active users
-def download_active_users(conn,user):
+def download_active_users(user):
     active_count = 0
 
     #read the active user file
@@ -329,14 +325,14 @@ def download_active_users(conn,user):
     
     #only one user active
     if active_count == 0:
-        conn.send('Currently no other user is in active.'.encode())
         print(f'{user} issued ATU command ATU.')
+        return 'Currently no other user is in active.'
     
     #return user list
     else:
-        conn.send(temp_str.encode())
         print(f'{user} issued ATU command ATU.')
         print(f'Return active user list: \n{temp_str}')
+        return temp_str
 
 def upload_file(conn,user):
     pass
@@ -366,24 +362,23 @@ def handle_client(conn, addr):
                     logout(conn,user,idx)
                     break
                 else:
-                    download_active_users(conn,user)
+                    res = download_active_users(user)
         elif command == POST_MESSAGE:
             temp_meg = ' '.join(check_str)
-            post_message(conn,user,temp_meg)
+            res = post_message(user,temp_meg)
         elif command == DELETE_MESSAGE:
-            delete_message(conn,user,check_str)
+            res = delete_message(user,check_str)
         elif command == EDIT_MESSAGE:
-            edit_message(conn,user,check_str)
+            res = edit_message(user,check_str)
         elif command == UPLOAD_FILE:
             pass
         elif command == READ_MESSAGE:
-            read_message(conn,user,check_str)
-        elif command == ACTIVATE_USERS:
-            download_active_users(conn,user)
+            res = read_message(user,check_str)
         else:
             conn.send('Invalid command. Please use available command (MSG, DLT, EDT, RDM, ATU, OUT, UDP):'.encode())
             continue
-        conn.send('Enter one of the following commands (MSG, DLT, EDT, RDM, ATU, OUT, UDP):'.encode())
+        res += '\nEnter one of the following commands (MSG, DLT, EDT, RDM, ATU, OUT, UDP):'
+        conn.send(res.encode())
     conn.close()
 
 #define server ip and port

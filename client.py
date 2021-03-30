@@ -20,7 +20,8 @@ connected = True
 while connected:
     data = clientSocket.recv(1024).decode()
     #user login and other input commands
-    if data[0] != 'F' and data[0] != 'S' and data[0] != 'W' and data[0] != 'M' and data[0] != 'C' and data[0] != 'D' and data[:2] != 'Ed' and data[0] !='R':
+    #if data[0] != 'F' and data[0] != 'S' and data[0] != 'W' and data[0] != 'M' and data[0] != 'C' and data[0] != 'D' and data[:2] != 'Ed' and data[0] !='R':
+    if data[0] != 'F' and data[0] != 'S' and data[0] != 'W':
         message = input(data)
         while message.strip() == '':
             message = input('Input should not be empty. Please enter again:')
@@ -31,9 +32,9 @@ while connected:
         message = input(data)
         clientSocket.send(message.encode())
     #user send,read,delete and edit message; active user response
-    elif data[0] == 'M' or data[0] == 'C' or data[0] == 'D' or data[:2] == 'Ed' or data[0] == 'R':
-        print(data)
-    #failure
+    #elif data[0] == 'M' or data[0] == 'C' or data[0] == 'D' or data[:2] == 'Ed' or data[0] == 'R':
+    #    input(data)
+    #logout or other failure
     else:
         print(data)
         clientSocket.close()
