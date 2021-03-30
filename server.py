@@ -215,14 +215,67 @@ def delete_message(conn,user,check_list):
         conn.send('Delete the message failed. There is no messages'.encode())
         print(f'{user} failed to delete MSG at {cur_t}')
 
-def edit_message(conn,user):
-    pass
+#user edit the message
+def edit_message(conn,user,check_list):
+    user_msg_list = []
+    check = ' '.join(check_list[:5]) + ' ' + user
+    new_msg = ' '.join(check_list[5:])
+    
+    try:
+        #extract the message file
+        with open("messagelog.txt", "r") as f:
+            d = f.readlines()
+            for i in d:
+                lst = i.strip().split('; ')
+                temp_user = lst[2]
+                temp_mg = lst[1]
+                temp_num = lst[0]
+                user_msg_list.append( '#' + temp_num + ' ' + temp_mg + ' ' + temp_user)
+        
+        #if the 3 condctions are not matched, send back error message 
+        if check not in user_msg_list:
+            cur_t = time.ctime()
+            conn.send('Edited the message failed. Please check the input.'.encode())
+            print(f'{user} failed to edit MSG at {cur_t}')
+        
+        #start to edit message
+        else:
+            idx = user_msg_list.index(check) + 1
+            with open('messagelog.txt','r+') as f:
+                d = f.readlines()
+                f.seek(0)
+                for i in d:
+                    temp_lst = i.strip().split('; ')
+                    #replace the message and update information
+                    if int(temp_lst[0]) == idx:
+                        t = time.ctime().split()
+                        cur_t = t[2] + ' ' + t[1] + ' ' + t[-1] + ' ' + t[-2]
+                        temp_lst[1] = cur_t
+                        temp_lst[-1] = 'yes'
+                        temp_lst[-2] = new_msg
+                        i = '; '.join(temp_lst) + '\n'
+                    else:
+                        pass
+                    f.write(i)
+                f.truncate()
+            cur_t = time.ctime()
+            conn.send(f'Edit the message successfully. Message #{idx} edited at {cur_t}.'.encode())
+            print(f'{user} edited MSG # {idx} "{new_msg}" at {cur_t}')
+    
+    #if no message file created
+    except:
+        cur_t = time.ctime()
+        conn.send('Edit the message failed. There is no messages'.encode())
+        print(f'{user} failed to Edit MSG at {cur_t}')
 
 def read_message(conn,user):
     pass
 
+#user apply for current active users
 def download_active_users(conn,user):
     active_count = 0
+
+    #read the active user file
     with open('userlog.txt') as f:
         d = f.readlines()
         temp_str = 'Current active users is:\n'
@@ -236,9 +289,13 @@ def download_active_users(conn,user):
             port = temp_list[-1]
             temp_str += name + ', '+ ip + ', ' + port + ', active since ' + t +'\n'
             active_count += 1
+    
+    #only one user active
     if active_count == 0:
         conn.send('Currently no other user is in active.'.encode())
         print(f'{user} issued ATU command ATU.')
+    
+    #return user list
     else:
         conn.send(temp_str.encode())
         print(f'{user} issued ATU command ATU.')
@@ -279,7 +336,8 @@ def handle_client(conn, addr):
             temp_check = temp_str[1:]
             delete_message(conn,user,temp_check)
         elif command == EDIT_MESSAGE:
-            pass
+            temp_check = temp_str[1:]
+            edit_message(conn,user,temp_check)
         elif command == UPLOAD_FILE:
             pass
         elif command == READ_MESSAGE:

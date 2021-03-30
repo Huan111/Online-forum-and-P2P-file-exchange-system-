@@ -3,7 +3,6 @@
 
 from socket import *
 import sys
-import time
 
 
 if len(sys.argv) != 4:
@@ -20,7 +19,7 @@ connected = True
 while connected:
     data = clientSocket.recv(1024).decode()
     #user login and other input commands
-    if data[0] != 'F' and data[0] != 'S' and data[0] != 'W' and data[0] != 'M' and data[0] != 'C' and data[0] != 'D':
+    if data[0] != 'F' and data[0] != 'S' and data[0] != 'W' and data[0] != 'M' and data[0] != 'C' and data[0] != 'D' and data[:2] != 'Ed':
         message = input(data)
         while message.strip() == '':
             message = input('Input should not be empty. Please enter again:')
@@ -30,8 +29,8 @@ while connected:
         clientSocket.send(UDPport.encode())
         message = input(data)
         clientSocket.send(message.encode())
-    #sending message, deleting message,active user respense
-    elif data[0] == 'M' or data[0] == 'C' or data[0] == 'D':
+    #sending message, deleting message,editting message and active user response
+    elif data[0] == 'M' or data[0] == 'C' or data[0] == 'D' or data[:2] == 'Ed':
         print(data)
     #failure
     else:
