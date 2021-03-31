@@ -394,20 +394,21 @@ def handle_client(conn, addr):
         conn.send(res.encode())
     conn.close()
 
-#define server ip and port
-SERVER = 'localhost'
+import os
+#read the server ip address through command line
+SERVER = os.popen('ip addr show eth0').read().split("inet ")[1].split("/")[0]
 serverSocket = socket(AF_INET, SOCK_STREAM)
 serverSocket.bind((SERVER,serverPort))
 
 #server multithreading process
 def start():
     serverSocket.listen()
-    print('Server is listening...')
+    print(f'Server is listening,the IP address is {SERVER}.')
     while 1:
         conn, addr = serverSocket.accept()
         thread = threading.Thread(target=handle_client,args=[conn,addr])
         thread.start()
         print(f'[ACTIVE CONNECTIONS] {threading.active_count() - 1}')
-
+    
 start()
         
