@@ -1,5 +1,6 @@
 ########### Please use python3 to run the codes. ##########
-########### This program is simulate the server behaviour with different functions ########
+########### Usage: python3 server.py port_number try_times ###########
+############ This program is simulate the server behaviour with different functions ########
 
 from socket import *
 import sys
@@ -89,7 +90,7 @@ def login(connectionSocket,address):
         if passwd == passwd_list[idx]:
             #successfully login in. added to active user log
             print(f'{user} logged in.')
-            connectionSocket.send(f'Welcome {user}!\nEnter one of the following commands (MSG, DLT, EDT, RDM, ATU, OUT, UDP):'.encode())
+            connectionSocket.send(f'Welcome {user}!\nEnter one of the following commands (MSG, DLT, EDT, RDM, ATU, OUT, UPD):'.encode())
             UDP_port = connectionSocket.recv(1024).decode()
             t = time.ctime().split()
             temp_t = t[2] + ' ' + t[1] + ' ' + t[-1] + ' ' + t[-2]
@@ -109,7 +110,7 @@ def login(connectionSocket,address):
         else:
             #passwd is not correct
             if try_count < TRY_count:
-                connectionSocket.send(f'password is not correct. Left trying time: {TRY_count - try_count}. Please reenter your password:'.encode())
+                connectionSocket.send(f'Password is not correct. Left trying time: {TRY_count - try_count}. Please reenter your password:'.encode())
                 try_count += 1
                 continue
             #try times execeeded. add to block list
@@ -347,8 +348,40 @@ def download_active_users(user):
         print(f'Return active user list: \n{temp_str}')
         return temp_str
 
-def upload_file(conn,user):
-    pass
+#user issued uploaded file
+def upload_file(user,temp_list):
+    #if the input is not corret, return back the message
+    if len(temp_list) != 2:
+        return 'Unsuccessfully require sending file. Input format not correct. Please retry.'
+
+    check_user = temp_list[0]
+    file_name = temp_list[1]
+    users = []
+    ips = []
+    ports = []
+
+    #read the current active users
+    with open('userlog.txt') as f:
+        d = f.readlines()
+        for i in d:
+            lst = i.strip().split('; ')
+            users.append(lst[-3])
+            ips.append(lst[-2])
+            ports.append(lst[-1])
+    
+    #if target user is not active
+    if check_user not in users:
+        return 'Unsuccessfully require sending file. Target user is not active.'
+
+    #Server send back the detail of the target user to sender
+    else:
+        msg = 'Transfer '
+        idx = users.index(check_user)
+        des_ip = ips[idx]
+        des_port = ports[idx]
+        file_name = user + '_' + file_name
+        msg += des_ip + ' ' + des_port + ' ' + file_name
+        return msg
 
 #main function to handle user message
 def handle_client(conn, addr):
@@ -384,13 +417,13 @@ def handle_client(conn, addr):
         elif command == EDIT_MESSAGE:
             res = edit_message(user,check_str)
         elif command == UPLOAD_FILE:
-            pass
+            res = upload_file(user,check_str)
         elif command == READ_MESSAGE:
             res = read_message(user,check_str)
         else:
-            conn.send('Invalid command. Please use available command (MSG, DLT, EDT, RDM, ATU, OUT, UDP):'.encode())
+            conn.send('Invalid command. Please use available command (MSG, DLT, EDT, RDM, ATU, OUT, UPD):'.encode())
             continue
-        res += '\nEnter one of the following commands (MSG, DLT, EDT, RDM, ATU, OUT, UDP):'
+        res += '\nEnter one of the following commands (MSG, DLT, EDT, RDM, ATU, OUT, UPD):'
         conn.send(res.encode())
     conn.close()
 
