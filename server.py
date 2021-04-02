@@ -394,10 +394,10 @@ def handle_client(conn, addr):
     while connected:
         msg = conn.recv(1024).decode()
         temp_str = msg.strip().split()
-        print(temp_str)
+        #print(temp_str)
         command = temp_str[0]
         check_str = temp_str[1:]
-        print(check_str)
+        #print(check_str)
         if command == ACTIVATE_USERS or command == DISCONNECT_MESSAGE:
             if len(temp_str) != 1:
                 conn.send(f'Invalid format of {command}. There should be no arguments for this command. Please retry:'.encode())
@@ -430,6 +430,7 @@ def handle_client(conn, addr):
 import os
 #read the server ip address through command line
 SERVER = os.popen('ip addr show eth0').read().split("inet ")[1].split("/")[0]
+#SERVER = 'localhost'
 serverSocket = socket(AF_INET, SOCK_STREAM)
 serverSocket.bind((SERVER,serverPort))
 
