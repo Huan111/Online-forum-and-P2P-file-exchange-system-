@@ -124,8 +124,19 @@ clientSocket = socket(AF_INET, SOCK_STREAM)
 #read the server ip address through command line
 
 #Define UDP server and client sockets
-UDP_server = os.popen('ip addr show eth0').read().split("inet ")[1].split("/")[0]
+#UDP_server = os.popen('ip addr show eth0').read().split("inet ")[1].split("/")[0]
 #UDP_server = 'localhost'
+#UDP_server = gethostbyname(gethostname())
+
+#fing private ip
+
+def find_ip():
+    s = socket(AF_INET, SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    res = s.getsockname()[0]
+    s.close()
+    return res
+UDP_server = find_ip()
 UDPserverSocket = socket(AF_INET, SOCK_DGRAM)
 UDPserverSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 UDPclientSocket = socket(AF_INET, SOCK_DGRAM)

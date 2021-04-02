@@ -427,10 +427,22 @@ def handle_client(conn, addr):
         conn.send(res.encode())
     conn.close()
 
-import os
+#import os
 #read the server ip address through command line
-SERVER = os.popen('ip addr show eth0').read().split("inet ")[1].split("/")[0]
+#SERVER = os.popen('ip addr show eth0').read().split("inet ")[1].split("/")[0]
 #SERVER = 'localhost'
+#SERVER = gethostbyname(gethostname())
+
+#find private ip address
+def find_ip():
+    s = socket(AF_INET, SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    res = s.getsockname()[0]
+    s.close()
+    return res
+
+#print(SERVER)
+SERVER = find_ip()
 serverSocket = socket(AF_INET, SOCK_STREAM)
 serverSocket.bind((SERVER,serverPort))
 
