@@ -18,7 +18,6 @@ UDPport = sys.argv[3]
 connected = True
 
 def send_file(file_name,local_file_name,read_size,des_ip,des_port,UDPclientSocket):
-    UDPclientSocket.sendto(file_name.encode(),(des_ip,des_port))
     with open(local_file_name, "rb") as video:
         temp = video.read(read_size)
         while temp:
