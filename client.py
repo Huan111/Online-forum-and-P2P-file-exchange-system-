@@ -6,7 +6,6 @@ from socket import *
 import sys
 import time
 import threading
-import os
 
 if len(sys.argv) != 4:
     raise ValueError('Invalid arguments. The terminal command format should meet: python3 client.py server_IP server_port client_udp_port.')
@@ -14,7 +13,6 @@ if len(sys.argv) != 4:
 serverName = sys.argv[1]
 serverPort = int(sys.argv[2])
 UDPport = sys.argv[3]
-#t_lock=threading.Condition()
 connected = True
 
 def send_file(file_name,local_file_name,read_size,des_ip,des_port,UDPclientSocket):
@@ -122,20 +120,12 @@ clientSocket = socket(AF_INET, SOCK_STREAM)
 #UDP connect
 #read the server ip address through command line
 
-#Define UDP server and client sockets
+
 #UDP_server = os.popen('ip addr show eth0').read().split("inet ")[1].split("/")[0]
 #UDP_server = 'localhost'
-#UDP_server = gethostbyname(gethostname())
 
-#fing private ip
-
-def find_ip():
-    s = socket(AF_INET, SOCK_DGRAM)
-    s.connect(("8.8.8.8", 80))
-    res = s.getsockname()[0]
-    s.close()
-    return res
-UDP_server = find_ip()
+#Define UDP server and client sockets
+UDP_server = gethostbyname(gethostname())
 UDPserverSocket = socket(AF_INET, SOCK_DGRAM)
 UDPserverSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 UDPclientSocket = socket(AF_INET, SOCK_DGRAM)
