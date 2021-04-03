@@ -102,6 +102,7 @@ def UDP_Server_handler(UDPserverSocket):
         #file finish its transfer
         if buffer == b'Finished':
             sender = file_name.decode().split('_')[0]
+            buffer = ''
             print()
             print(f'Recived file from {sender}')
             print('Enter one of the following commands (MSG, DLT, EDT, RDM, ATU, OUT, UPD):')
@@ -114,8 +115,10 @@ def UDP_Server_handler(UDPserverSocket):
 #TCP connect
 clientSocket = socket(AF_INET, SOCK_STREAM)
 
+UDP_server = 'localhost'
+
 #Define UDP server and client sockets
-UDP_server = gethostbyname(gethostname())
+#UDP_server = gethostbyname(gethostname())
 UDPserverSocket = socket(AF_INET, SOCK_DGRAM)
 UDPserverSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 UDPclientSocket = socket(AF_INET, SOCK_DGRAM)

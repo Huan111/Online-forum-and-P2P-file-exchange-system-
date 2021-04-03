@@ -72,10 +72,8 @@ def login(connectionSocket,address):
             connectionSocket.send('Please enter your username:'.encode())
             user = connectionSocket.recv(1024).decode()
             idx = user_list.index(user)
-            #print(f'user is {user}')
             connectionSocket.send('Please enter your password:'.encode())
             passwd = connectionSocket.recv(1024).decode()
-            #print(f'passwd is {passwd}')
         
         # only input passwd
         else:
@@ -433,10 +431,10 @@ def handle_client(conn, addr):
     conn.close()
 
 
-#SERVER = 'localhost'
+SERVER = 'localhost'
 
 #get server name
-SERVER = gethostbyname(gethostname())
+#SERVER = gethostbyname(gethostname())
 
 serverSocket = socket(AF_INET, SOCK_STREAM)
 serverSocket.bind((SERVER,serverPort))

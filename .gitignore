@@ -7,4 +7,6 @@ block.txt
 cse_userlog
 messagelog.txt
 userlog.txt
-Hans_example2.mp4
+*.mp4
+*.docx
+*.tmp
