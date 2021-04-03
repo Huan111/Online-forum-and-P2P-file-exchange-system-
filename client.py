@@ -115,10 +115,10 @@ def UDP_Server_handler(UDPserverSocket):
 #TCP connect
 clientSocket = socket(AF_INET, SOCK_STREAM)
 
-UDP_server = 'localhost'
+#UDP_server = 'localhost'
 
 #Define UDP server and client sockets
-#UDP_server = gethostbyname(gethostname())
+UDP_server = gethostbyname(gethostname())
 UDPserverSocket = socket(AF_INET, SOCK_DGRAM)
 UDPserverSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 UDPclientSocket = socket(AF_INET, SOCK_DGRAM)
