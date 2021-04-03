@@ -431,10 +431,10 @@ def handle_client(conn, addr):
     conn.close()
 
 
-#SERVER = 'localhost'
 
 #get server name
 SERVER = gethostbyname(gethostname())
+#SERVER = 'localhost'
 
 serverSocket = socket(AF_INET, SOCK_STREAM)
 serverSocket.bind((SERVER,serverPort))
