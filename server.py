@@ -386,7 +386,6 @@ def upload_file(user,temp_list):
         des_port = ports[idx]
         file_name = user + '_' + file_name
         msg += des_ip + ' ' + des_port + ' ' + file_name + ' ' + check_user
-        #msg += des_ip + ' ' + des_port + ' ' + file_name
         return msg
 
 #main function to handle user message
@@ -400,10 +399,8 @@ def handle_client(conn, addr):
     while connected:
         msg = conn.recv(1024).decode()
         temp_str = msg.strip().split()
-        #print(temp_str)
         command = temp_str[0]
         check_str = temp_str[1:]
-        #print(check_str)
         
         #Dealing with all kinds of different functions
         if command == ACTIVATE_USERS or command == DISCONNECT_MESSAGE:
@@ -437,9 +434,10 @@ def handle_client(conn, addr):
 
 
 #SERVER = 'localhost'
+
+#get server name
 SERVER = gethostbyname(gethostname())
 
-#print(SERVER)
 serverSocket = socket(AF_INET, SOCK_STREAM)
 serverSocket.bind((SERVER,serverPort))
 

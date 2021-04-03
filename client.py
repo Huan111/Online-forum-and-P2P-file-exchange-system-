@@ -23,12 +23,8 @@ def send_file(local_file_name,read_size,des_ip,des_port,UDPclientSocket):
         while temp:
             time.sleep(1)
             UDPclientSocket.sendto(temp,(des_ip, des_port))
-            #print('send filr to user')
             temp = video.read(read_size)
-            #msg,serverAddress = UDPclientSocket.recvfrom(2048)
-            #print(f'Received from server {serverAddress}: received {msg} bytes')
         UDPclientSocket.sendto('Finished'.encode(),(des_ip, des_port))
-        #print('finished')
         UDPclientSocket.close()
 
 #TCP server connnect
@@ -57,16 +53,13 @@ def TCP_server_handler():
 
         #UDP transfer file
         elif data[0] == 'T':
+            
             #get the target informations
-            print(data.strip().split('\n')[0].split())
             des_ip, des_port, file_name, check_user = data.strip().split('\n')[0].split()[1:]
-            #des_ip, des_port, file_name = data.strip().split('\n')[0].split()[1:]
-            #user_name = file_name.split('_')[0]
             local_file_name = file_name.split('_')[1]
             des_port = int(des_port)
-            #print(f'ip:{des_ip} desport:{des_port} file_name:{file_name}, username:{user_name}, local_file:{local_file_name}')
-
-            print("Sending video..")
+            
+            #define clientsocket and start to send file
             UDPclientSocket = socket(AF_INET, SOCK_DGRAM)
             UDPclientSocket.sendto(file_name.encode(),(des_ip,des_port))
             UDPclientthread = threading.Thread(target=send_file,args=[local_file_name,read_size,des_ip,des_port,UDPclientSocket])
@@ -100,13 +93,9 @@ def UDP_Server_handler(UDPserverSocket):
             buffer = 'Y'
         # received message
         buffer,clientAddress = UDPserverSocket.recvfrom(write_size)
-        #write into file
-        with open(file_name, "ab") as video:
-            video.write(buffer)
         
         #if user send the disconnect message to the server 
         if buffer == b'Disconnected':
-            #print('received disconnected')
             connected = False
             break
         
@@ -117,6 +106,10 @@ def UDP_Server_handler(UDPserverSocket):
             print(f'Recived file from {sender}')
             print('Enter one of the following commands (MSG, DLT, EDT, RDM, ATU, OUT, UPD):')
             continue
+
+        #write into file
+        with open(file_name, "ab") as video:
+            video.write(buffer)
         
 #TCP connect
 clientSocket = socket(AF_INET, SOCK_STREAM)
@@ -127,7 +120,7 @@ UDPserverSocket = socket(AF_INET, SOCK_DGRAM)
 UDPserverSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 UDPclientSocket = socket(AF_INET, SOCK_DGRAM)
 UDPserverSocket.bind((UDP_server,int(UDPport)))
-#print(f'UDP server is {UDP_server},port is {UDPport}')
+
 
 #main function
 def start(): 
