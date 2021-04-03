@@ -301,7 +301,12 @@ def read_message(user,check_list):
                 temp_date = temp[1]
                 date_time_obj = datetime.datetime.strptime(temp_date, '%d %b %Y %H:%M:%S')
                 if date_time_obj >= comp_date:
-                    msg += '#' + temp[0] + '; ' + temp[-3] + ': ' + f'"{temp[-2]}" ' + 'posted at ' + temp[1] + '.\n'
+                    if temp[-1] == 'no':
+                        msg += '#' + temp[0] + '; ' + temp[-3] + ': ' + f'"{temp[-2]}" ' + 'posted at ' + temp[1] + '.\n'
+                    else:
+                        msg += '#' + temp[0] + '; ' + temp[-3] + ': ' + f'"{temp[-2]}" ' + 'edited at ' + temp[1] + '.\n'
+                else:
+                    continue
         
         #if no new message
         if msg == '':
@@ -380,7 +385,8 @@ def upload_file(user,temp_list):
         des_ip = ips[idx]
         des_port = ports[idx]
         file_name = user + '_' + file_name
-        msg += des_ip + ' ' + des_port + ' ' + file_name
+        msg += des_ip + ' ' + des_port + ' ' + file_name + ' ' + check_user
+        #msg += des_ip + ' ' + des_port + ' ' + file_name
         return msg
 
 #main function to handle user message
@@ -398,6 +404,8 @@ def handle_client(conn, addr):
         command = temp_str[0]
         check_str = temp_str[1:]
         #print(check_str)
+        
+        #Dealing with all kinds of different functions
         if command == ACTIVATE_USERS or command == DISCONNECT_MESSAGE:
             if len(temp_str) != 1:
                 conn.send(f'Invalid format of {command}. There should be no arguments for this command. Please retry:'.encode())
@@ -427,9 +435,7 @@ def handle_client(conn, addr):
         conn.send(res.encode())
     conn.close()
 
-#import os
-#read the server ip address through command line
-#SERVER = os.popen('ip addr show eth0').read().split("inet ")[1].split("/")[0]
+
 #SERVER = 'localhost'
 SERVER = gethostbyname(gethostname())
 
