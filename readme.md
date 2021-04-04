@@ -3,12 +3,12 @@
 
 ## Table of Contents
 
-- [General Description](#General Description)
-- [Program Design](#Program Design)
+- [General Description](#General-Description)
+- [Program Design](#Program-Design)
 - [Features](#Features)
-- [Usage Examples](#Usage Examples)
-- [Important usage notes](#Important usage notes)
-- [Future improvement](#Future improvement)
+- [Usage Examples](#Usage-Examples)
+- [Important usage notes](#Important-usage-notes)
+- [Future improvement](#Future-improvement)
 - [License](#License)
 
 ##  General Description
