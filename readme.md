@@ -1,5 +1,16 @@
 # Online forum and P2P file exchange system
 [![GitHub Stars](https://img.shields.io/github/stars/Huan111/Online-forum-and-P2P-file-exchange-system.svg)](https://github.com/Huan111/Online-forum-and-P2P-file-exchange-system-/stargazers)
+
+## Table of Contents
+
+- [General Description](#General Description)
+- [Program Design](#Program Design)
+- [Features](#Features)
+- [Usage Examples](#Usage Examples)
+- [Important usage notes](#Important usage notes)
+- [Future improvement](#Future improvement)
+- [License](#License)
+
 ##  General Description
 This project is using python socket progamming to simulate online forum functionality in both server and clients
 sides.
@@ -222,7 +233,7 @@ Here are some situations that may have bothering, or problems that causing some 
 
 ---
 
-## Future improvement:
+## Future improvement
 The program is not support with the user not in that credentials.txt and will not throw out error. For achieving this, we can first search through the file to find if there is a match or not, then throw back the error if the user does not exist. Also adding creating the user account as writing new user data into credentials.txt.
 
 ---
