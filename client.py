@@ -87,17 +87,23 @@ def UDP_Server_handler(UDPserverSocket):
     buffer = ''
 
     while connected:
-        #first received file name
+        #first received file name or disconnect the server
         if not buffer:
-            file_name,clientAddress = UDPserverSocket.recvfrom(write_size)
-            buffer = 'Y'
+            data,clientAddress = UDPserverSocket.recvfrom(write_size)
+            if data == b'Disconnected':
+                connected = False
+                break
+            else:
+                file_name = data
+                buffer = 'Y'
+        
         # received message
         buffer,clientAddress = UDPserverSocket.recvfrom(write_size)
         
         #if user send the disconnect message to the server 
-        if buffer == b'Disconnected':
-            connected = False
-            break
+        #if buffer == b'Disconnected':
+        #    connected = False
+        #    break
         
         #file finish its transfer
         if buffer == b'Finished':
@@ -115,7 +121,6 @@ def UDP_Server_handler(UDPserverSocket):
 #TCP connect
 clientSocket = socket(AF_INET, SOCK_STREAM)
 
-
 #Define UDP server and client sockets
 UDP_server = gethostbyname(gethostname())
 #UDP_server = 'localhost'
@@ -123,7 +128,6 @@ UDPserverSocket = socket(AF_INET, SOCK_DGRAM)
 UDPserverSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 UDPclientSocket = socket(AF_INET, SOCK_DGRAM)
 UDPserverSocket.bind((UDP_server,int(UDPport)))
-
 
 #main function
 def start(): 
