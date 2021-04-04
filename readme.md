@@ -1,5 +1,5 @@
 # Online forum and P2P file exchange system
-[![GitHub Stars](https://img.shields.io/github/stars/Huan111/Online-forum-and-P2P-file-exchange-system-.svg)](https://github.com/Huan111/Online-forum-and-P2P-file-exchange-system-/stargazers) [![GitHub Issues]
+[![GitHub Stars](https://img.shields.io/github/stars/Huan111/Online-forum-and-P2P-file-exchange-system.svg)](https://github.com/Huan111/Online-forum-and-P2P-file-exchange-system-/stargazers) [![GitHub Issues]
 ##  General Description
 This project is using python socket progamming to simulate online forum functionality in both server and clients
 sides.
