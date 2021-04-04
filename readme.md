@@ -1,4 +1,4 @@
-# Python Socket programming: Online forum and P2P file exchange system
+#Online forum and P2P file exchange system
 
 ##  General Description
 This project is using python socket progamming to simulate online forum functionality in both server and clients
