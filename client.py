@@ -100,10 +100,6 @@ def UDP_Server_handler(UDPserverSocket):
         # received message
         buffer,clientAddress = UDPserverSocket.recvfrom(write_size)
         
-        #if user send the disconnect message to the server 
-        #if buffer == b'Disconnected':
-        #    connected = False
-        #    break
         
         #file finish its transfer
         if buffer == b'Finished':
